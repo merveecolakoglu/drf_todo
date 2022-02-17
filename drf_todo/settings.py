@@ -41,9 +41,13 @@ INSTALLED_APPS = [
     'api',
 
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,7 +62,7 @@ ROOT_URLCONF = 'drf_todo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [BASE_DIR / 'frontend/build']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -126,3 +130,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000"
+]
+
+STATICFILES_DIRS=[
+    BASE_DIR,'frontend/build/static'
+]

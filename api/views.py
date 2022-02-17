@@ -2,9 +2,11 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework.decorators import api_view
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import *
+
 from rest_framework.response import Response
 from django.http import JsonResponse
+from rest_framework.views import APIView
 
 from api.models import Task
 from api.serializers import TaskSerializer
@@ -23,28 +25,29 @@ def apiOwerview(request):
     return Response(api_urls)
 
 
-@api_view(['GET'])
-def taskList(request):
-    tasks = Task.objects.all().order_by('-id')
-    serializer = TaskSerializer(tasks, many=True)
-    return Response(serializer.data)
+class TaskListView(ListAPIView):
+    queryset = Task.objects.all().order_by('-id')
+    serializer_class = TaskSerializer
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = TaskSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
-@api_view(['GET'])
-def taskDetail(request, pk):
-    tasks = Task.objects.get(id=pk)
-    serializer = TaskSerializer(tasks, many=False)
-    return Response(serializer.data)
+class TaskCreateView(CreateAPIView):
+    serializer_class = TaskSerializer
 
 
-@api_view(['POST'])
-def taskCreate(request):
-    serializer = TaskSerializer(data=request.data)
+class TaskDetailView(RetrieveAPIView):
+    queryset = Task
+    lookup_field = 'pk'
+    serializer_class = TaskSerializer
 
-    if serializer.is_valid():
-        serializer.save()
-
-    return Response(serializer.data)
+    def get_queryset(self, pk):
+        queryset = Task.objects.get(id=pk)
+        serializer = TaskSerializer(queryset, many=False)
+        return Response(serializer.data)
 
 
 @api_view(['POST'])
@@ -57,10 +60,19 @@ def taskUpdate(request, pk):
 
     return Response(serializer.data)
 
+class TaskUpdateView(UpdateAPIView):
+    queryset=Task
+    lookup_field = 'pk'
+    serializer_class=TaskSerializer
+    instance=queryset
 
-@api_view(['DELETE'])
-def taskDelete(request, pk):
-    task = Task.objects.get(id=pk)
-    task.delete()
+    def put(self, request, *args, **kwargs):
+        return self.update(request,*args,**kwargs)
 
-    return Response('Item succsesfully delete!!')
+class TaskDeleteView(DestroyAPIView):
+    queryset=Task
+    lookup_field = 'pk'
+
+    def delete(self,request,*args,**kwargs):
+        return self.destroy(request,*args,**kwargs)
+
