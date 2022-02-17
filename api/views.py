@@ -50,24 +50,11 @@ class TaskDetailView(RetrieveAPIView):
         return Response(serializer.data)
 
 
-@api_view(['POST'])
-def taskUpdate(request, pk):
-    task = Task.objects.get(id=pk)
-    serializer = TaskSerializer(instance=task, data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-
-    return Response(serializer.data)
-
 class TaskUpdateView(UpdateAPIView):
-    queryset=Task
+    queryset=Task.objects.all()
     lookup_field = 'pk'
     serializer_class=TaskSerializer
-    instance=queryset
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request,*args,**kwargs)
 
 class TaskDeleteView(DestroyAPIView):
     queryset=Task
